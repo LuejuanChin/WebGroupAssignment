@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | DriveStyle Auto Accessories</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">DriveStyle Auto Accessories</div>
+	<img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="login.html" class="active">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="about.html">About Us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="form-page">
+    <section class="form-container">
+	<img src="../Assets/Drivestylelogo.png" alt="Website Logo" class="logo" style="display:block; margin:0 auto;" />
+      	<h1>Login</h1>
+      	<form id="loginForm">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" name="loginUsername" required />
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="loginPassword" required />
+
+        <p id="loginMessage" class="message"></p>
+
+        <button type="submit" class="btn">Login</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
