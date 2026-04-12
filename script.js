@@ -28,17 +28,25 @@ function saveCart(cart) {
 
 function addToCart(productName) {
   let cart = getCart();
-  let product = products.find(function (item) {
-    return item.name === productName;
-  });
+  let product = null;
+
+  for (let i = 0; i < products.length; i++) {
+    if (products[i].name === productName) {
+      product = products[i];
+    }
+  }
 
   if (!product) {
     return;
   }
 
-  let existingItem = cart.find(function (item) {
-    return item.name === productName;
-  });
+  let existingItem = null;
+
+  for (let i = 0; i < cart.length; i++) {
+    if (cart[i].name === productName) {
+      existingItem = cart[i];
+    }
+  }
 
   if (existingItem) {
     existingItem.quantity = existingItem.quantity + 1;
@@ -74,16 +82,33 @@ function removeFromCart(index) {
   displayOrderSummary();
 }
 
+/* PERSON 3 - UPDATE QUANTITY */
+function updateQuantity(index, newQty) {
+  let cart = getCart();
+
+  if (newQty <= 0) {
+    cart.splice(index, 1);
+  } else {
+    cart[index].quantity = newQty;
+    cart[index].subtotal = cart[index].quantity * cart[index].price;
+  }
+
+  saveCart(cart);
+  displayCart();
+  displayOrderSummary();
+}
+
 /* PRODUCT BUTTON EVENTS*/
 
 function setupAddToCart() {
   let buttons = document.querySelectorAll(".add-cart");
 
-  buttons.forEach(function (button, index) {
-    button.addEventListener("click", function () {
+  for (let i = 0; i < buttons.length; i++) {
+    let index = i;
+    buttons[i].addEventListener("click", function () {
       addToCart(products[index].name);
     });
-  });
+  }
 }
 
 /*CART DISPLAY*/
@@ -106,19 +131,24 @@ function displayCart() {
   let rows = "";
   let subtotal = 0;
 
-  cart.forEach(function (item, index) {
+  for (let i = 0; i < cart.length; i++) {
+    let item = cart[i];
     subtotal = subtotal + item.subtotal;
 
-    rows += `
-      <tr>
-        <td>${item.name}</td>
-        <td>$${item.price.toFixed(2)}</td>
-        <td>${item.quantity}</td>
-        <td>$${item.subtotal.toFixed(2)}</td>
-        <td><button class="btn remove-btn" data-index="${index}">Remove</button></td>
-      </tr>
-    `;
-  });
+    rows += "<tr>" +
+      "<td>" + item.name + "</td>" +
+      "<td>$" + item.price.toFixed(2) + "</td>" +
+
+      "<!-- PERSON 3 - NEW FEATURE: UPDATE QUANTITY INPUT -->" +
+      "<td>" +
+      "<input type='number' min='1' value='" + item.quantity + "' " +
+      "onchange='updateQuantity(" + i + ", this.value)'>" +
+      "</td>" +
+
+      "<td>$" + item.subtotal.toFixed(2) + "</td>" +
+      "<td><button class='btn remove-btn' data-index='" + i + "'>Remove</button></td>" +
+      "</tr>";
+  }
 
   let discount = 0;
   if (subtotal > 10000) {
@@ -130,21 +160,20 @@ function displayCart() {
 
   cartTable.innerHTML = rows;
 
-  summary.innerHTML = `
-    <p>Subtotal: $${subtotal.toFixed(2)}</p>
-    <p>Discount (10%): $${discount.toFixed(2)}</p>
-    <p>Tax (15%): $${tax.toFixed(2)}</p>
-    <h3>Total: $${total.toFixed(2)}</h3>
-  `;
+  summary.innerHTML =
+    "<p>Subtotal: $" + subtotal.toFixed(2) + "</p>" +
+    "<p>Discount (10%): $" + discount.toFixed(2) + "</p>" +
+    "<p>Tax (15%): $" + tax.toFixed(2) + "</p>" +
+    "<h3>Total: $" + total.toFixed(2) + "</h3>";
 
   let removeButtons = document.querySelectorAll(".remove-btn");
 
-  removeButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      let index = parseInt(button.getAttribute("data-index"));
+  for (let i = 0; i < removeButtons.length; i++) {
+    removeButtons[i].addEventListener("click", function () {
+      let index = parseInt(removeButtons[i].getAttribute("data-index"));
       removeFromCart(index);
     });
-  });
+  }
 }
 
 /* CHECKOUT ORDER SUMMARY*/
@@ -165,13 +194,12 @@ function displayOrderSummary() {
   let output = "";
   let subtotal = 0;
 
-  cart.forEach(function (item) {
+  for (let i = 0; i < cart.length; i++) {
+    let item = cart[i];
     subtotal = subtotal + item.subtotal;
 
-    output += `
-      <p>${item.name} x ${item.quantity} - $${item.subtotal.toFixed(2)}</p>
-    `;
-  });
+    output += "<p>" + item.name + " x " + item.quantity + " - $" + item.subtotal.toFixed(2) + "</p>";
+  }
 
   let discount = 0;
   if (subtotal > 10000) {
@@ -181,96 +209,33 @@ function displayOrderSummary() {
   let tax = (subtotal - discount) * 0.15;
   let total = subtotal - discount + tax;
 
-  output += `
-    <hr>
-    <p>Subtotal: $${subtotal.toFixed(2)}</p>
-    <p>Discount: $${discount.toFixed(2)}</p>
-    <p>Tax: $${tax.toFixed(2)}</p>
-    <h3>Total: $${total.toFixed(2)}</h3>
-  `;
+  output +=
+    "<hr>" +
+    "<p>Subtotal: $" + subtotal.toFixed(2) + "</p>" +
+    "<p>Discount: $" + discount.toFixed(2) + "</p>" +
+    "<p>Tax: $" + tax.toFixed(2) + "</p>" +
+    "<h3>Total: $" + total.toFixed(2) + "</h3>";
 
   summaryBox.innerHTML = output;
 }
 
-/* LOGIN FORM VALIDATION*/
-function loginValidation() {
-  let form = document.getElementById("loginForm");
-  let message = document.getElementById("loginMessage");
-
-  if (!form || !message) {
-    return;
+/* PERSON 3 - CLOSE CART */
+function closeCart() {
+  let cartSection = document.getElementById("cartSection");
+  if (cartSection) {
+    cartSection.style.display = "none";
   }
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    let username = document.getElementById("loginUsername").value.trim();
-    let password = document.getElementById("loginPassword").value.trim();
-
-    if (username === "" || password === "") {
-      message.innerHTML = "Please fill in all fields!";
-      message.style.color = "red";
-      return;
-    }
-
-    message.innerHTML = "Login successful!";
-    message.style.color = "green";
-    form.reset();
-  });
 }
+
+/* LOGIN FORM VALIDATION*/
+function loginValidation() { }
 
 /* REGISTER FORM VALIDATION*/
-function registerValidation() {
-  let form = document.getElementById("registerForm");
-  let message = document.getElementById("registerMessage");
-
-  if (!form || !message) {
-    return;
-  }
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    let fullName = document.getElementById("fullName").value.trim();
-    let dob = document.getElementById("dob").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let username = document.getElementById("username").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let confirmPassword = document.getElementById("confirmPassword").value.trim();
-
-    if (
-      fullName === "" ||
-      dob === "" ||
-      email === "" ||
-      username === "" ||
-      password === "" ||
-      confirmPassword === ""
-    ) {
-      message.innerHTML = "Please fill in all fields!";
-      message.style.color = "red";
-      return;
-    }
-
-    if (!email.includes("@")) {
-      message.innerHTML = "Please enter a valid email address!";
-      message.style.color = "red";
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      message.innerHTML = "Passwords do not match!";
-      message.style.color = "red";
-      return;
-    }
-
-    message.innerHTML = "Registration successful!";
-    message.style.color = "green";
-    form.reset();
-  });
-}
+function registerValidation() { }
 
 /* CHECKOUT FORM */
 function checkoutValidation() {
+
   let form = document.getElementById("checkoutForm");
   let message = document.getElementById("checkoutMessage");
 
@@ -291,8 +256,22 @@ function checkoutValidation() {
       return;
     }
 
+    /* PERSON 3 PASS CHECKOUT DATA FOR INVOICE SYSTEM */
+    let cart = getCart();
+
+    let checkoutData = {
+      customerName: customerName,
+      address: address,
+      amountPaid: amountPaid,
+      cart: cart,
+      total: document.querySelector(".cart-summary").innerText
+    };
+
+    localStorage.setItem("latestCheckout", JSON.stringify(checkoutData));
+
     message.innerHTML = "Order placed successfully!";
     message.style.color = "green";
+
     localStorage.removeItem("cart");
     form.reset();
     displayOrderSummary();
@@ -303,21 +282,28 @@ function checkoutValidation() {
 function setupButtons() {
   let buttons = document.querySelectorAll("button");
 
-  buttons.forEach(function (button) {
-    let text = button.textContent.trim();
+  for (let i = 0; i < buttons.length; i++) {
+    let text = buttons[i].textContent.trim();
 
     if (text.includes("Clear")) {
-      button.addEventListener("click", function () {
+      buttons[i].addEventListener("click", function () {
         localStorage.removeItem("cart");
         alert("Cart cleared!");
         displayCart();
         displayOrderSummary();
       });
     }
-  });
+
+    /* PERSON 3 -  CLOSE BUTTON */
+    if (text.includes("Close")) {
+      buttons[i].addEventListener("click", function () {
+        closeCart();
+      });
+    }
+  }
 }
 
-/*   FUNCTIONS */
+/* FUNCTIONS */
 function initializePage() {
   setupAddToCart();
   displayCart();
