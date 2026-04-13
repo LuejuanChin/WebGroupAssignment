@@ -9,7 +9,8 @@
 <body>
   <header class="site-header">
     <div class="logo">DriveStyle Auto Accessories</div>
-	<img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <img src="../Assets/Drivestylelogo.png" alt="Website Logo" class="logo">
+
     <nav>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
@@ -24,19 +25,28 @@
 
   <main class="form-page">
     <section class="form-container">
-	<img src="../Assets/Drivestylelogo.png" alt="Website Logo" class="logo" style="display:block; margin:0 auto;" />
-      	<h1>Login</h1>
-      	<form id="loginForm">
+
+      <img src="../Assets/Drivestylelogo.png" class="logo" style="display:block; margin:0 auto;" />
+
+      <h1>Login</h1>
+
+      <form id="loginForm">
         <label for="loginUsername">Username</label>
-        <input type="text" id="loginUsername" name="loginUsername" required />
+        <input type="text" id="loginUsername" required />
 
         <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" name="loginPassword" required />
+        <input type="password" id="loginPassword" required />
 
         <p id="loginMessage" class="message"></p>
 
         <button type="submit" class="btn">Login</button>
+
+        <!-- RESET PASSWORD BUTTON -->
+        <button type="button" class="btn" onclick="resetPassword()">
+          Reset Password
+        </button>
       </form>
+
     </section>
   </main>
 
@@ -44,6 +54,93 @@
     <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- JAVASCRIPT -->
+  <script>
+    let attempts = parseInt(localStorage.getItem("loginAttempts")) || 0;
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const message = document.getElementById("loginMessage");
+
+      const storedUsername = localStorage.getItem("username");
+      const storedPassword = localStorage.getItem("password");
+
+      message.textContent = "";
+
+      // 🔒 BLOCK AFTER 3 ATTEMPTS
+      if (attempts >= 3) {
+        window.location.href = "locked.html";
+        return;
+      }
+
+      // EMPTY CHECK
+      if (!username || !password) {
+        message.style.color = "red";
+        message.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      // NO ACCOUNT
+      if (!storedUsername || !storedPassword) {
+        message.style.color = "red";
+        message.textContent = "No account found. Please register first.";
+        return;
+      }
+
+      // SUCCESS LOGIN
+      if (username === storedUsername && password === storedPassword) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("loginAttempts", "0");
+
+        message.style.color = "green";
+        message.textContent = "Login successful! Redirecting...";
+
+        setTimeout(() => {
+          window.location.href = "products.html";
+        }, 1500);
+
+      } else {
+        // FAILED LOGIN
+        attempts++;
+        localStorage.setItem("loginAttempts", attempts);
+
+        message.style.color = "red";
+        message.textContent = `Invalid login. Attempt ${attempts}/3`;
+
+        if (attempts >= 3) {
+          localStorage.setItem("loginAttempts", "3");
+          window.location.href = "locked.html";
+        }
+      }
+    });
+
+    // 🔁 RESET PASSWORD FEATURE
+    function resetPassword() {
+      const newPassword = prompt(
+        "Enter new password (min 8 characters, 1 uppercase letter, 1 number):"
+      );
+
+      if (!newPassword) return;
+
+      if (newPassword.length < 8) {
+        alert("Password must be at least 8 characters long.");
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+        alert("Password must include at least one uppercase letter and one number.");
+        return;
+      }
+
+      localStorage.setItem("password", newPassword);
+      localStorage.setItem("loginAttempts", "0");
+
+      alert("Password reset successful!");
+    }
+  </script>
+
 </body>
 </html>
