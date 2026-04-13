@@ -1,4 +1,3 @@
-<!-- Luejuan Chin 2210150 IA2-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,9 +90,15 @@
         return;
       }
 
+      // Get existing RegistrationData
+      let registrationData = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+
       // TRN uniqueness check
-      const existingTRN = localStorage.getItem("trn");
-      if (existingTRN === trn) {
+      const existingTRN = registrationData.find(function(user) {
+        return user.trn === trn;
+      });
+
+      if (existingTRN) {
         message.style.color = "red";
         message.textContent = "TRN already registered. Please use a different TRN.";
         return;
@@ -121,8 +126,11 @@
       }
 
       // Check username uniqueness
-      const existingUser = localStorage.getItem("username");
-      if (existingUser === username) {
+      const existingUser = registrationData.find(function(user) {
+        return user.username === username;
+      });
+
+      if (existingUser) {
         message.style.color = "red";
         message.textContent = "Username already exists. Please choose another.";
         return;
@@ -132,6 +140,21 @@
       localStorage.setItem("username", username);
       localStorage.setItem("password", password);
       localStorage.setItem("trn", trn);
+
+      // Add user to RegistrationData
+      const newUser = {
+        fullName: fullName,
+        dob: dob,
+        email: email,
+        username: username,
+        trn: trn,
+        password: password,
+        cart: [],
+        invoices: []
+      };
+
+      registrationData.push(newUser);
+      localStorage.setItem("RegistrationData", JSON.stringify(registrationData));
 
       message.style.color = "green";
       message.textContent = "Registration successful! Redirecting to login...";
