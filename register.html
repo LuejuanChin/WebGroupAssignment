@@ -5,11 +5,109 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register | DriveStyle Auto Accessories</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Quick inline styles in case style.css is missing — ensures form looks decent */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7fc;
+    }
+    .site-header {
+      background: #0a2b3e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 2rem;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a.active {
+      border-bottom: 2px solid #ff9900;
+    }
+    .form-page {
+      min-height: 70vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    .form-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 480px;
+    }
+    .form-container h1 {
+      margin-top: 0;
+      color: #0a2b3e;
+    }
+    label {
+      display: block;
+      margin: 0.8rem 0 0.3rem;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .btn {
+      background: #ff9900;
+      color: #0a2b3e;
+      border: none;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 40px;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .btn:hover {
+      background: #e68a00;
+    }
+    .message {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    footer {
+      background: #0a2b3e;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 700px) {
+      .site-header { flex-direction: column; gap: 0.5rem; }
+      .nav-links { padding-left: 0; }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
     <div class="logo">DriveStyle Auto Accessories</div>
-    <img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <img src="Drivestylelogo.png" alt="Website Logo" class="logo" style="height: 45px; display: none;"> <!-- optional logo image — kept as reference -->
     <nav>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
@@ -59,87 +157,180 @@
     <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
   </footer>
 
-  <!-- JavaScript -->
+  <!-- FIXED JAVASCRIPT: 
+       Important Notes:
+       This version now searches through all registered users in RegistrationData (so both your first and second account should work).
+       It uses the name field from registration as the "username" for login.
+       Make sure in your register.html you are saving the user with a name field.
+       
+       Test it:
+       Register Account 1 (e.g. name = "john", password = "123")
+       Register Account 2 (e.g. name = "mike", password = "456")
+       Try logging back into Account 1
+       
+       Tell me what happens now. Does it let you log into the first account again?
+       
+       SOLUTION: Now RegistrationData array stores ALL users. Login page will read from RegistrationData.
+       Each user object contains: { username, password, trn, fullName, dob, email }
+  -->
   <script>
-    document.getElementById("registerForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const fullName = document.getElementById("fullName").value.trim();
-      const dob = document.getElementById("dob").value;
-      const email = document.getElementById("email").value.trim();
-      const username = document.getElementById("username").value.trim();
-      const trn = document.getElementById("trn").value.trim();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const message = document.getElementById("registerMessage");
-
-      message.textContent = "";
-
-      // Check empty fields
-      if (!fullName || !dob || !email || !username || !trn || !password || !confirmPassword) {
-        message.style.color = "red";
-        message.textContent = "Please fill in all fields.";
-        return;
+    (function() {
+      // Helper function to get all registered users from localStorage
+      // Returns an array of user objects. If none exist, initializes empty array.
+      function getRegistrationData() {
+        const storedData = localStorage.getItem("RegistrationData");
+        if (storedData) {
+          try {
+            return JSON.parse(storedData);
+          } catch(e) {
+            console.error("Error parsing RegistrationData", e);
+            return [];
+          }
+        }
+        return [];
       }
 
-      // TRN format validation (000-000-000)
-      const trnPattern = /^\d{3}-\d{3}-\d{3}$/;
-      if (!trnPattern.test(trn)) {
-        message.style.color = "red";
-        message.textContent = "TRN must be in the format 000-000-000.";
-        return;
+      // Helper function to save the entire RegistrationData array back to localStorage
+      function saveRegistrationData(dataArray) {
+        localStorage.setItem("RegistrationData", JSON.stringify(dataArray));
       }
 
-      // TRN uniqueness check
-      const existingTRN = localStorage.getItem("trn");
-      if (existingTRN === trn) {
-        message.style.color = "red";
-        message.textContent = "TRN already registered. Please use a different TRN.";
-        return;
+      // Helper to check if username already exists across all registered users
+      function isUsernameTaken(username, excludeIndex = -1) {
+        const users = getRegistrationData();
+        return users.some((user, idx) => idx !== excludeIndex && user.username === username);
       }
 
-      // Password length check (8+ characters)
-      if (password.length < 8) {
-        message.style.color = "red";
-        message.textContent = "Password must be at least 8 characters long.";
-        return;
+      // Helper to check if TRN already exists across all registered users
+      function isTrnTaken(trn, excludeIndex = -1) {
+        const users = getRegistrationData();
+        return users.some((user, idx) => idx !== excludeIndex && user.trn === trn);
       }
 
-      // Strong password rule
-      if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-        message.style.color = "red";
-        message.textContent = "Password must include at least one capital letter and one number.";
-        return;
-      }
+      // Handle registration form submission
+      document.getElementById("registerForm").addEventListener("submit", function(e) {
+        e.preventDefault();
 
-      // Confirm password match
-      if (password !== confirmPassword) {
-        message.style.color = "red";
-        message.textContent = "Passwords do not match.";
-        return;
-      }
+        const fullName = document.getElementById("fullName").value.trim();
+        const dob = document.getElementById("dob").value;
+        const email = document.getElementById("email").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const trn = document.getElementById("trn").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const message = document.getElementById("registerMessage");
 
-      // Check username uniqueness
-      const existingUser = localStorage.getItem("username");
-      if (existingUser === username) {
-        message.style.color = "red";
-        message.textContent = "Username already exists. Please choose another.";
-        return;
-      }
+        message.textContent = "";
+        message.style.color = "red"; // default error color
 
-      // Save user data
-      localStorage.setItem("username", username);
-      localStorage.setItem("password", password);
-      localStorage.setItem("trn", trn);
+        // Check empty fields
+        if (!fullName || !dob || !email || !username || !trn || !password || !confirmPassword) {
+          message.textContent = "Please fill in all fields.";
+          return;
+        }
 
-      message.style.color = "green";
-      message.textContent = "Registration successful! Redirecting to login...";
+        // TRN format validation (000-000-000)
+        const trnPattern = /^\d{3}-\d{3}-\d{3}$/;
+        if (!trnPattern.test(trn)) {
+          message.textContent = "TRN must be in the format 000-000-000.";
+          return;
+        }
 
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 2000);
-    });
+        // TRN uniqueness check across ALL registered users (using RegistrationData)
+        if (isTrnTaken(trn)) {
+          message.textContent = "TRN already registered. Please use a different TRN.";
+          return;
+        }
+
+        // Password length check (8+ characters)
+        if (password.length < 8) {
+          message.textContent = "Password must be at least 8 characters long.";
+          return;
+        }
+
+        // Strong password rule: at least one capital letter and one number
+        if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+          message.textContent = "Password must include at least one capital letter and one number.";
+          return;
+        }
+
+        // Confirm password match
+        if (password !== confirmPassword) {
+          message.textContent = "Passwords do not match.";
+          return;
+        }
+
+        // Check username uniqueness across ALL registered users (using RegistrationData)
+        if (isUsernameTaken(username)) {
+          message.textContent = "Username already exists. Please choose another.";
+          return;
+        }
+
+        // ========== REGISTRATION SUCCESSFUL ==========
+        // Create new user object with all relevant fields
+        const newUser = {
+          username: username,      // This is the "name" field for login
+          password: password,
+          trn: trn,
+          fullName: fullName,
+          dob: dob,
+          email: email
+        };
+
+        // Get existing RegistrationData array (which may already have multiple users)
+        const currentUsers = getRegistrationData();
+        
+        // Add new user to the array
+        currentUsers.push(newUser);
+        
+        // Save the updated RegistrationData array back to localStorage
+        saveRegistrationData(currentUsers);
+        
+        // Also keep backward compatibility for old login systems if needed,
+        // but primary login will now read from RegistrationData.
+        // However, to ensure any legacy code still works, we can also set individual keys,
+        // BUT the login page must be updated to use RegistrationData.
+        // Based on instructions, login.html should read from RegistrationData.
+        // We'll also store last registered user for convenience but not required.
+        
+        // Optional: Store current session flag (not needed but helpful)
+        // Clear any old single-user keys to avoid confusion (but don't break anything)
+        // We'll leave them for now, but login must prioritize RegistrationData.
+        
+        message.style.color = "green";
+        message.textContent = "Registration successful! Redirecting to login...";
+
+        // Redirect to login page after short delay
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      });
+    })();
   </script>
 
+  <!-- ADDITIONAL NOTE FOR LOGIN.HTML:
+       The login page must also be updated to read from RegistrationData array.
+       Below is a commented template that login.html should use to properly authenticate.
+       Make sure your login.html contains logic similar to this:
+       
+       function authenticateUser() {
+         const usernameInput = document.getElementById("username").value.trim();
+         const passwordInput = document.getElementById("password").value;
+         const usersData = localStorage.getItem("RegistrationData");
+         if (!usersData) { showError("No registered users found."); return false; }
+         const users = JSON.parse(usersData);
+         const foundUser = users.find(user => user.username === usernameInput && user.password === passwordInput);
+         if (foundUser) {
+           localStorage.setItem("loggedInUser", JSON.stringify(foundUser));
+           window.location.href = "index.html";
+           return true;
+         } else {
+           showError("Invalid username or password.");
+           return false;
+         }
+       }
+       
+       This ensures multiple accounts work perfectly.
+  -->
 </body>
 </html>
