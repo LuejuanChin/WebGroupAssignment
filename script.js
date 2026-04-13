@@ -465,19 +465,12 @@ function checkoutValidation() {
 
     let totals = calculateCartTotals(cart);
 
-    if (Number(amountPaid) < totals.total) {
-      message.innerHTML = "Amount paid must cover the total cost.";
-      message.style.color = "red";
-      return;
-    }
-
     /* PERSON 3 PASS CHECKOUT DATA FOR INVOICE SYSTEM */
     let currentUser = getCurrentUser();
 
     let checkoutData = {
   customerName: customerName,
   address: address,
-  amountPaid: amountPaid,
   cart: cart,
   total: totals.total,
   trn: currentUser && currentUser.trn ? currentUser.trn : getStoredTRN()
@@ -595,8 +588,7 @@ function generateInvoice(checkoutData) {
     subtotal: totals.subtotal,
     discount: totals.discount,
     tax: totals.tax,
-    total: totals.total,
-    amountPaid: Number(checkoutData.amountPaid)
+    total: totals.total
   };
 
   let allInvoices = getAllInvoices();
