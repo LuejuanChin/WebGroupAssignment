@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | DriveStyle Auto Accessories</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">DriveStyle Auto Accessories</div>
+    <img src="Drivestylelogo.png" alt="Website Logo" class="logo" style="height: 45px; display: none;"> <!-- optional logo image — kept as reference -->
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html" class="active">Register</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="form-page">
+    <section class="form-container">
+      <h1>Create Account</h1>
+      <form id="registerForm">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" required />
+
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" required />
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" required />
+
+        <label for="gender">Gender</label>
+        <select id="gender" required>
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" required />
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" required />
+
+        <!-- TRN Field -->
+        <label for="trn">TRN</label>
+        <input type="text" id="trn" placeholder="000-000-000" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" required />
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" required />
+
+        <p id="registerMessage" class="message"></p>
+
+        <div class="btn-group">
+          <button type="submit" class="btn">Register</button>
+          <button type="reset" class="btn secondary">Cancel</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
+  </footer>
+
+  <!-- FIXED JAVASCRIPT: 
+       Important Notes:
+       This version now searches through all registered users in RegistrationData (so both your first and second account should work).
+       It uses the name field from registration as the "username" for login.
+       Make sure in your register.html you are saving the user with a name field.
+
+       Test it:
+       Register Account 1 (e.g. name = "john", password = "123")
+       Register Account 2 (e.g. name = "mike", password = "456")
+       Try logging back into Account 1
+
+       Tell me what happens now. Does it let you log into the first account again?
+
+       SOLUTION: Now RegistrationData array stores ALL users. Login page will read from RegistrationData.
+       Each user object contains: { username, password, trn, fullName, dob, email }
+  -->
+  <script>
+    (function() {
+      // MAJOR UPDATE LABEL - registration form aligned to assignment requirements
+
+      // Helper function to get all registered users from localStorage
+      // Returns an array of user objects. If none exist, initializes empty array.
+      function getRegistrationData() {
+        const storedData = localStorage.getItem("RegistrationData");
+        if (storedData) {
+          try {
+            return JSON.parse(storedData);
+          } catch(e) {
+            console.error("Error parsing RegistrationData", e);
+            return [];
+          }
+        }
+        return [];
+      }
+
+      // Helper function to save the entire RegistrationData array back to localStorage
+      function saveRegistrationData(dataArray) {
+        localStorage.setItem("RegistrationData", JSON.stringify(dataArray));
+      }
+
+      // Helper to check if TRN already exists across all registered users
+      function isTrnTaken(trn) {
+        const users = getRegistrationData();
+        return users.some((user) => user.trn === trn);
+      }
+
+      function calculateAge(dob) {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+          age--;
+        }
+        return age;
+      }
+
+      // Handle registration form submission
+      document.getElementById("registerForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const dob = document.getElementById("dob").value;
+        const gender = document.getElementById("gender").value;
+        const phone = document.getElementById("phone").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const trn = document.getElementById("trn").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const message = document.getElementById("registerMessage");
+
+        message.textContent = "";
+        message.style.color = "red"; // default error color
+
+        if (!firstName || !lastName || !dob || !gender || !phone || !email || !trn || !password || !confirmPassword) {
+          message.textContent = "Please fill in all fields.";
+          return;
+        }
+
+        const trnPattern = /^\d{3}-\d{3}-\d{3}$/;
+        if (!trnPattern.test(trn)) {
+          message.textContent = "TRN must be in the format 000-000-000.";
+          return;
+        }
+
+        if (isTrnTaken(trn)) {
+          message.textContent = "TRN already registered. Please use a different TRN.";
+          return;
+        }
+
+        const age = calculateAge(dob);
+        if (age < 18) {
+          message.textContent = "Visitor must be over 18 years old to register.";
+          return;
+        }
+
+        if (password.length < 8) {
+          message.textContent = "Password must be at least 8 characters long.";
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          message.textContent = "Passwords do not match.";
+          return;
+        }
+
+        const newUser = {
+          firstName: firstName,
+          lastName: lastName,
+          fullName: firstName + " " + lastName,
+          dob: dob,
+          age: age,
+          gender: gender,
+          phone: phone,
+          email: email,
+          trn: trn,
+          password: password,
+          dateOfRegistration: new Date().toLocaleDateString(),
+          cart: [],
+          invoices: []
+        };
+
+        const currentUsers = getRegistrationData();
+        currentUsers.push(newUser);
+        saveRegistrationData(currentUsers);
+
+        message.style.color = "green";
+        message.textContent = "Registration successful! Redirecting to login...";
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+      });
+    })();
+  </script>
+</body>
+</html>

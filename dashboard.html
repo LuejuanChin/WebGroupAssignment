@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | DriveStyle Auto Accessories</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">DriveStyle Auto Accessories</div>
+    <img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-title">
+      <h1>User Frequency and Invoice Dashboard</h1>
+    </section>
+
+    <section class="dashboard-panel">
+      <h2>User Frequency</h2>
+      <div id="frequencyDisplay"></div>
+    </section>
+
+    <section class="dashboard-panel">
+      <h2>Show All Invoices</h2>
+      <label for="searchTRN">Search Invoice by TRN</label>
+      <input type="text" id="searchTRN" placeholder="000-000-000">
+      <div class="btn-group">
+        <button class="btn" onclick="showInvoices()">Search Invoices</button>
+      </div>
+      <div id="invoiceList"></div>
+    </section>
+
+    <section class="dashboard-panel">
+      <h2>Get User Invoices</h2>
+      <label for="userTRN">Enter User TRN</label>
+      <input type="text" id="userTRN" placeholder="000-000-000">
+      <div class="btn-group">
+        <button class="btn" onclick="getUserInvoices()">Get User Invoices</button>
+      </div>
+      <div id="userInvoiceDisplay"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

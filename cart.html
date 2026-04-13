@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart | DriveStyle Auto Accessories</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">DriveStyle Auto Accessories</div>
+    <img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html" class="active">Cart</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="cart-page" id="cartSection">
+    <section class="page-title">
+      <h1>Your Shopping Cart</h1>
+    </section>
+
+    <section class="cart-table-section">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Sub-Total</th>
+            <th>Discount</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="cartItems">
+        </tbody>
+      </table>
+    </section>
+
+    <section class="cart-summary"></section>
+
+    <div class="btn-group">
+      <button type="button" class="btn secondary">Clear All</button>
+      <a href="products.html" class="btn secondary">Continue Shopping</a>
+      <a href="checkout.html" class="btn primary">Check Out</a>
+      <button type="button" class="btn secondary" onclick="closeCart()">Close</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
