@@ -2,12 +2,12 @@
    IA#2 JavaScript*/
 
 /* ============================================================
-   MAJOR UPDATE LABEL - Assignment alignment fixes
-   - login now uses TRN instead of username
-   - products stored in AllProducts
-   - cart syncs to current logged-in user
-   - invoices save to AllInvoices and user invoices[]
-   - age groups are calculated from DOB if age is not stored
+   MAJOR UPDATE LABEL - Script aligned to current login.html
+   - removed shared-script login conflict because login is handled inline in login.html
+   - removed dependency on currentUserTRN from shared features
+   - current user lookup now aligns with localStorage username used by login.html
+   - cart/user sync now uses RegistrationData only if matching username/fullName exists
+   - invoices still save to AllInvoices and user invoices[] where possible
    ============================================================ */
 
 const products = [
@@ -24,9 +24,11 @@ const products = [
    ======================== */
 function getRegistrationData() {
   let data = localStorage.getItem("RegistrationData");
+
   if (data === null) {
     return [];
   }
+
   try {
     return JSON.parse(data);
   } catch (error) {
@@ -39,31 +41,36 @@ function saveRegistrationData(users) {
   localStorage.setItem("RegistrationData", JSON.stringify(users));
 }
 
-function getCurrentUserTRN() {
-  return localStorage.getItem("currentUserTRN") || "";
+/* MAJOR UPDATE LABEL - aligns with login.html storage */
+function getStoredUsername() {
+  return localStorage.getItem("username") || "";
 }
 
 function getCurrentUserIndex() {
-  let trn = getCurrentUserTRN();
+  let storedUsername = getStoredUsername().trim().toLowerCase();
   let users = getRegistrationData();
 
+  if (storedUsername === "") {
+    return -1;
+  }
+
   for (let i = 0; i < users.length; i++) {
-    if (users[i].trn === trn) {
-      return i;
+    let user = users[i];
+
+    let possibleNames = [
+      user.username,
+      user.name,
+      user.fullName
+    ];
+
+    for (let j = 0; j < possibleNames.length; j++) {
+      if (possibleNames[j] && possibleNames[j].trim().toLowerCase() === storedUsername) {
+        return i;
+      }
     }
   }
 
   return -1;
-}
-
-function syncCartToCurrentUser(cart) {
-  let userIndex = getCurrentUserIndex();
-
-  if (userIndex >= 0) {
-    let users = getRegistrationData();
-    users[userIndex].cart = cart;
-    saveRegistrationData(users);
-  }
 }
 
 function getCurrentUser() {
@@ -77,8 +84,25 @@ function getCurrentUser() {
   return null;
 }
 
+function syncCartToCurrentUser(cart) {
+  let userIndex = getCurrentUserIndex();
+
+  if (userIndex >= 0) {
+    let users = getRegistrationData();
+
+    if (!users[userIndex].cart) {
+      users[userIndex].cart = [];
+    }
+
+    users[userIndex].cart = cart;
+    saveRegistrationData(users);
+  }
+}
+
 function calculateAge(dob) {
-  if (!dob) return 0;
+  if (!dob) {
+    return 0;
+  }
 
   let birthDate = new Date(dob);
   let today = new Date();
@@ -100,6 +124,30 @@ function getAgeGroup(age) {
   if (age >= 36 && age <= 50) return "36-50";
   if (age > 50) return "50+";
   return "Under 18";
+}
+
+function getUserDisplayName(user) {
+  if (!user) {
+    return "";
+  }
+
+  if (user.fullName) {
+    return user.fullName;
+  }
+
+  if (user.firstName && user.lastName) {
+    return user.firstName + " " + user.lastName;
+  }
+
+  if (user.name) {
+    return user.name;
+  }
+
+  if (user.username) {
+    return user.username;
+  }
+
+  return "";
 }
 
 /* ========================
@@ -129,7 +177,7 @@ function displayProducts() {
       "<h2>" + p.name + "</h2>" +
       "<p>" + p.description + "</p>" +
       "<p class='price'>JMD $" + p.price.toFixed(2) + "</p>" +
-      "<button class='btn add-cart' data-index='" + i + "'>Add to Cart</button>";
+      "<button class='btn add-cart' data-index='" + i + "' data-bound='true'>Add to Cart</button>";
 
     container.appendChild(card);
   }
@@ -146,7 +194,6 @@ function displayProducts() {
 /* ========================
    CART FUNCTIONS
    ======================== */
-
 function getCart() {
   let cart = localStorage.getItem("cart");
 
@@ -256,12 +303,17 @@ function updateQuantity(index, newQty) {
 /* ========================
    PRODUCT BUTTON EVENTS
    ======================== */
-
 function setupAddToCart() {
   let buttons = document.querySelectorAll(".add-cart");
 
   for (let i = 0; i < buttons.length; i++) {
+    if (buttons[i].getAttribute("data-bound") === "true") {
+      continue;
+    }
+
     let index = i;
+    buttons[i].setAttribute("data-bound", "true");
+
     buttons[i].addEventListener("click", function () {
       addToCart(index);
     });
@@ -271,7 +323,6 @@ function setupAddToCart() {
 /* ========================
    CART DISPLAY
    ======================== */
-
 function displayCart() {
   let cartTable = document.getElementById("cartItems");
   let summary = document.querySelector(".cart-summary");
@@ -283,7 +334,7 @@ function displayCart() {
   let cart = getCart();
 
   if (cart.length === 0) {
-    cartTable.innerHTML = '<tr><td colspan="7">Your cart is empty</td></tr>';
+    cartTable.innerHTML = '<tr><td colspan="8">Your cart is empty</td></tr>';
     summary.innerHTML = "<p><strong>Total: JMD $0.00</strong></p>";
     return;
   }
@@ -323,7 +374,7 @@ function displayCart() {
 
   for (let i = 0; i < removeButtons.length; i++) {
     removeButtons[i].addEventListener("click", function () {
-      let index = parseInt(removeButtons[i].getAttribute("data-index"));
+      let index = parseInt(this.getAttribute("data-index"));
       removeFromCart(index);
     });
   }
@@ -332,7 +383,6 @@ function displayCart() {
 /* ========================
    CHECKOUT ORDER SUMMARY
    ======================== */
-
 function displayOrderSummary() {
   let summaryBox = document.getElementById("orderSummary");
 
@@ -376,7 +426,9 @@ function closeCart() {
 /* ========================
    LOGIN FORM VALIDATION
    ======================== */
-function loginValidation() { }
+function loginValidation() {
+  /* Login is already handled inline in login.html */
+}
 
 /* ========================
    REGISTER FORM VALIDATION
@@ -387,7 +439,6 @@ function registerValidation() { }
    CHECKOUT FORM
    ======================== */
 function checkoutValidation() {
-
   let form = document.getElementById("checkoutForm");
   let message = document.getElementById("checkoutMessage");
 
@@ -425,13 +476,16 @@ function checkoutValidation() {
     }
 
     /* PERSON 3 PASS CHECKOUT DATA FOR INVOICE SYSTEM */
+    let currentUser = getCurrentUser();
+
     let checkoutData = {
       customerName: customerName,
       address: address,
       amountPaid: amountPaid,
       cart: cart,
       total: totals.total,
-      trn: getCurrentUserTRN()
+      username: getStoredUsername(),
+      trn: currentUser && currentUser.trn ? currentUser.trn : "N/A"
     };
 
     localStorage.setItem("latestCheckout", JSON.stringify(checkoutData));
@@ -516,7 +570,12 @@ function getAllInvoices() {
   if (saved === null) {
     return [];
   }
-  return JSON.parse(saved);
+
+  try {
+    return JSON.parse(saved);
+  } catch (error) {
+    return [];
+  }
 }
 
 /* PERSON 4 - INVOICE: Save all invoices to localStorage */
@@ -526,20 +585,15 @@ function saveAllInvoices(invoices) {
 
 /* PERSON 4 - INVOICE: Generate invoice from checkout data and store it */
 function generateInvoice(checkoutData) {
-
   let cart = checkoutData.cart;
   let totals = calculateCartTotals(cart);
-
-  // Get TRN from current logged-in user or checkout data
-  let trn = checkoutData.trn || getCurrentUserTRN() || "N/A";
   let currentUser = getCurrentUser();
 
-  // Build the invoice object
   let invoice = {
     invoiceNumber: generateInvoiceNumber(),
     date: getFormattedDate(),
     companyName: "DriveStyle Auto Accessories",
-    trn: trn,
+    trn: checkoutData.trn || (currentUser && currentUser.trn ? currentUser.trn : "N/A"),
     customerName: checkoutData.customerName,
     address: checkoutData.address,
     items: cart,
@@ -550,12 +604,10 @@ function generateInvoice(checkoutData) {
     amountPaid: Number(checkoutData.amountPaid)
   };
 
-  // Save invoice to AllInvoices in localStorage
   let allInvoices = getAllInvoices();
   allInvoices.push(invoice);
   saveAllInvoices(allInvoices);
 
-  // Also save to user object if user exists in RegistrationData
   if (currentUser !== null) {
     let users = getRegistrationData();
     let userIndex = getCurrentUserIndex();
@@ -564,6 +616,7 @@ function generateInvoice(checkoutData) {
       if (!users[userIndex].invoices) {
         users[userIndex].invoices = [];
       }
+
       users[userIndex].invoices.push(invoice);
       saveRegistrationData(users);
     }
@@ -593,6 +646,7 @@ function displayInvoice() {
   for (let i = 0; i < inv.items.length; i++) {
     let item = inv.items[i];
     let itemDiscount = inv.subtotal > 10000 ? item.subtotal * 0.10 : 0;
+
     itemRows +=
       "<tr>" +
       "<td>" + item.name + "</td>" +
@@ -784,12 +838,12 @@ function getUserInvoices() {
   }
 
   if (!foundUser.invoices || foundUser.invoices.length === 0) {
-    container.innerHTML = "<p>" + foundUser.fullName + " has no invoices.</p>";
-    console.log(foundUser.fullName + " has no invoices.");
+    container.innerHTML = "<p>" + getUserDisplayName(foundUser) + " has no invoices.</p>";
+    console.log(getUserDisplayName(foundUser) + " has no invoices.");
     return;
   }
 
-  let output = "<h3>Invoices for: " + foundUser.fullName + " (TRN: " + trn + ")</h3>";
+  let output = "<h3>Invoices for: " + getUserDisplayName(foundUser) + " (TRN: " + trn + ")</h3>";
 
   for (let i = 0; i < foundUser.invoices.length; i++) {
     let inv = foundUser.invoices[i];
@@ -811,7 +865,6 @@ function getUserInvoices() {
 /* ========================
    PAGE INITIALIZATION
    ======================== */
-
 if (document.getElementById("productList")) {
   loadProducts();
   displayProducts();
@@ -824,6 +877,7 @@ if (document.getElementById("invoiceDisplay")) {
 if (document.getElementById("frequencyDisplay")) {
   showUserFrequency();
 }
+
 if (document.getElementById("invoiceList")) {
   showInvoices();
 }
@@ -839,13 +893,13 @@ function initializePage() {
 
   let currentUser = getCurrentUser();
   let customerName = document.getElementById("customerName");
+
   if (currentUser && customerName) {
-    customerName.value = currentUser.fullName || "";
+    customerName.value = getUserDisplayName(currentUser);
   }
 
-  let userCart = getCurrentUser();
-  if (userCart && userCart.cart && userCart.cart.length > 0 && getCart().length === 0) {
-    saveCart(userCart.cart);
+  if (currentUser && currentUser.cart && currentUser.cart.length > 0 && getCart().length === 0) {
+    saveCart(currentUser.cart);
   }
 }
 
