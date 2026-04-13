@@ -18,7 +18,13 @@ const products = [
   { name: "Luxury Air Freshener", price: 1200, description: "Premium fragrance to keep your car fresh and inviting.", image: "air-freshener.jpeg" },
   { name: "Dash Cam", price: 9500, description: "Record every drive with a clear and reliable dashboard camera.", image: "dash-cam.jpeg" }
 ];
-
+/*LOGOUT*/
+function logoutUser() {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("cart");
+    alert("You have been logged out.");
+    window.location.href = "login.html";
+  }
 /* ========================
    STORAGE HELPERS
    ======================== */
