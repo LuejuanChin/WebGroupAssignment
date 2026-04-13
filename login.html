@@ -48,52 +48,59 @@
   <!-- JAVASCRIPT -->
   <script>
     let attempts = parseInt(localStorage.getItem("loginAttempts")) || 0;
+
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
+
       const username = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
       const message = document.getElementById("loginMessage");
-      const storedUsername = localStorage.getItem("username");
-      const storedPassword = localStorage.getItem("password");
+
       message.textContent = "";
+
       // 🔒 BLOCK AFTER 3 ATTEMPTS
       if (attempts >= 3) {
         window.location.href = "locked.html";
         return;
       }
+
       // EMPTY CHECK
       if (!username || !password) {
         message.style.color = "red";
         message.textContent = "Please fill in all fields.";
         return;
       }
+
       // NO ACCOUNT
-      if (!storedUsername || !storedPassword) {
+      if (!localStorage.getItem("username") || !localStorage.getItem("password")) {
         message.style.color = "red";
         message.textContent = "No account found. Please register first.";
         return;
       }
-      // SUCCESS LOGIN
-      if (username === storedUsername && password === storedPassword) {
+
+      // SUCCESS LOGIN - Reset attempts so it doesn't stay locked
+      if (username === localStorage.getItem("username") && password === localStorage.getItem("password")) {
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("loginAttempts", "0");
+        localStorage.setItem("loginAttempts", "0");   // IMPORTANT: Reset counter on success
         message.style.color = "green";
         message.textContent = "Login successful! Redirecting...";
         setTimeout(() => {
           window.location.href = "products.html";
         }, 1500);
       } else {
-        // FAILED LOGIN
+        // FAILED LOGIN - Only increase attempts here
         attempts++;
         localStorage.setItem("loginAttempts", attempts);
         message.style.color = "red";
         message.textContent = `Invalid login. Attempt ${attempts}/3`;
+
         if (attempts >= 3) {
           localStorage.setItem("loginAttempts", "3");
           window.location.href = "locked.html";
         }
       }
     });
+
     // 🔁 RESET PASSWORD FEATURE
     function resetPassword() {
       const newPassword = prompt(
@@ -109,7 +116,7 @@
         return;
       }
       localStorage.setItem("password", newPassword);
-      localStorage.setItem("loginAttempts", "0");
+      localStorage.setItem("loginAttempts", "0");   // Reset attempts when password is changed
       alert("Password reset successful!");
     }
   </script>
