@@ -45,7 +45,7 @@
     <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
   </footer>
 
-  <!-- JAVASCRIPT - FIXED -->
+  <!-- JAVASCRIPT - FIXED TO WORK WITH RegistrationData MULTI-ACCOUNT -->
   <script>
     // Reset attempts every single time the page loads (this stops new accounts from being locked)
     localStorage.setItem("loginAttempts", "0");
@@ -73,15 +73,34 @@
         return;
       }
 
-      // NO ACCOUNT
-      if (!localStorage.getItem("username") || !localStorage.getItem("password")) {
+      // FIXED: Now searches through all registered users in RegistrationData (so both your first and second account should work).
+      // It uses the name field from registration as the "username" for login.
+      // Get all registered users from RegistrationData array
+      let registrationData = [];
+      const storedData = localStorage.getItem("RegistrationData");
+      if (storedData) {
+        registrationData = JSON.parse(storedData);
+      }
+
+      // NO ACCOUNT - check if any users exist in RegistrationData
+      if (registrationData.length === 0) {
         message.style.color = "red";
         message.textContent = "No account found. Please register first.";
         return;
       }
 
-      // SUCCESS LOGIN
-      if (username === localStorage.getItem("username") && password === localStorage.getItem("password")) {
+      // SUCCESS LOGIN - search through all users in RegistrationData
+      let foundUser = null;
+      for (let i = 0; i < registrationData.length; i++) {
+        const user = registrationData[i];
+        // Check both 'name' field (from registration) and 'username' field
+        if ((user.name === username || user.username === username) && user.password === password) {
+          foundUser = user;
+          break;
+        }
+      }
+
+      if (foundUser) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("loginAttempts", "0");
         message.style.color = "green";
@@ -103,8 +122,15 @@
       }
     });
 
-    // 🔁 RESET PASSWORD FEATURE
+    // 🔁 RESET PASSWORD FEATURE - FIXED to update password in RegistrationData
     function resetPassword() {
+      const usernameInput = document.getElementById("loginUsername").value.trim();
+      
+      if (!usernameInput) {
+        alert("Please enter your username first before resetting password.");
+        return;
+      }
+      
       const newPassword = prompt(
         "Enter new password (min 8 characters, 1 uppercase letter, 1 number):"
       );
@@ -117,9 +143,31 @@
         alert("Password must include at least one uppercase letter and one number.");
         return;
       }
-      localStorage.setItem("password", newPassword);
-      localStorage.setItem("loginAttempts", "0");
-      alert("Password reset successful!");
+      
+      // Find and update the user in RegistrationData
+      let registrationData = [];
+      const storedData = localStorage.getItem("RegistrationData");
+      if (storedData) {
+        registrationData = JSON.parse(storedData);
+      }
+      
+      let userFound = false;
+      for (let i = 0; i < registrationData.length; i++) {
+        const user = registrationData[i];
+        if (user.name === usernameInput || user.username === usernameInput) {
+          registrationData[i].password = newPassword;
+          userFound = true;
+          break;
+        }
+      }
+      
+      if (userFound) {
+        localStorage.setItem("RegistrationData", JSON.stringify(registrationData));
+        localStorage.setItem("loginAttempts", "0");
+        alert("Password reset successful!");
+      } else {
+        alert("Username not found. Please register first.");
+      }
     }
   </script>
 </body>
