@@ -1,3 +1,4 @@
+<!-- Luejuan Chin 2210150 IA2-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
 <body>
   <header class="site-header">
     <div class="logo">DriveStyle Auto Accessories</div>
-    <img src="Drivestylelogo.png" alt="Website Logo" class="logo">
+    <img src="../Assets/Drivestylelogo.png" alt="Website Logo" class="logo">
 
     <nav>
       <ul class="nav-links">
@@ -26,13 +27,13 @@
   <main class="form-page">
     <section class="form-container">
 
-      <img src="Drivestylelogo.png" class="logo" style="display:block; margin:0 auto;" />
+      <img src="../Assets/Drivestylelogo.png" class="logo" style="display:block; margin:0 auto;" />
 
       <h1>Login</h1>
 
       <form id="loginForm">
-        <label for="loginUsername">Username</label>
-        <input type="text" id="loginUsername" required />
+        <label for="loginTRN">TRN</label>
+        <input type="text" id="loginTRN" placeholder="000-000-000" required />
 
         <label for="loginPassword">Password</label>
         <input type="password" id="loginPassword" required />
@@ -66,11 +67,11 @@
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
-      const username = document.getElementById("loginUsername").value.trim();
+      const trn = document.getElementById("loginTRN").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
       const message = document.getElementById("loginMessage");
 
-      const storedUsername = localStorage.getItem("username");
+      const storedTRN = localStorage.getItem("trn");
       const storedPassword = localStorage.getItem("password");
 
       message.textContent = "";
@@ -82,21 +83,21 @@
       }
 
       // EMPTY CHECK
-      if (!username || !password) {
+      if (!trn || !password) {
         message.style.color = "red";
         message.textContent = "Please fill in all fields.";
         return;
       }
 
       // NO ACCOUNT
-      if (!storedUsername || !storedPassword) {
+      if (!storedTRN || !storedPassword) {
         message.style.color = "red";
         message.textContent = "No account found. Please register first.";
         return;
       }
 
       // ✅ SUCCESS LOGIN
-      if (username === storedUsername && password === storedPassword) {
+      if (trn === storedTRN && password === storedPassword) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("loginAttempts", "0");
 
