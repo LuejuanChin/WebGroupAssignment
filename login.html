@@ -45,9 +45,11 @@
     <p>&copy; 2026 DriveStyle Auto Accessories. All Rights Reserved.</p>
   </footer>
 
-  <!-- JAVASCRIPT -->
+  <!-- JAVASCRIPT - FIXED -->
   <script>
-    let attempts = parseInt(localStorage.getItem("loginAttempts")) || 0;
+    // Reset attempts every single time the page loads (this stops new accounts from being locked)
+    localStorage.setItem("loginAttempts", "0");
+    let attempts = 0;
 
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -58,7 +60,7 @@
 
       message.textContent = "";
 
-      // 🔒 BLOCK AFTER 3 ATTEMPTS
+      // 🔒 BLOCK AFTER 3 ATTEMPTS ONLY
       if (attempts >= 3) {
         window.location.href = "locked.html";
         return;
@@ -81,14 +83,14 @@
       // SUCCESS LOGIN
       if (username === localStorage.getItem("username") && password === localStorage.getItem("password")) {
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("loginAttempts", "0");   // Reset so it doesn't stay locked
+        localStorage.setItem("loginAttempts", "0");
         message.style.color = "green";
         message.textContent = "Login successful! Redirecting...";
         setTimeout(() => {
           window.location.href = "products.html";
         }, 1500);
       } else {
-        // FAILED LOGIN
+        // FAILED LOGIN - only increase here
         attempts++;
         localStorage.setItem("loginAttempts", attempts);
         message.style.color = "red";
@@ -116,7 +118,7 @@
         return;
       }
       localStorage.setItem("password", newPassword);
-      localStorage.setItem("loginAttempts", "0");   // Reset attempts
+      localStorage.setItem("loginAttempts", "0");
       alert("Password reset successful!");
     }
   </script>
