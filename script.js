@@ -447,9 +447,9 @@ function checkoutValidation() {
 
     let customerName = document.getElementById("customerName").value.trim();
     let address = document.getElementById("address").value.trim();
-    let amountPaid = document.getElementById("amountPaid").value.trim();
+   
 
-    if (customerName === "" || address === "" || amountPaid === "") {
+   if (customerName === "" || address === "") {
       message.innerHTML = "Please fill in all fields!";
       message.style.color = "red";
       return;
