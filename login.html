@@ -78,17 +78,17 @@
         return;
       }
 
-      // SUCCESS LOGIN - Reset attempts so it doesn't stay locked
+      // SUCCESS LOGIN
       if (username === localStorage.getItem("username") && password === localStorage.getItem("password")) {
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("loginAttempts", "0");   // IMPORTANT: Reset counter on success
+        localStorage.setItem("loginAttempts", "0");   // Reset so it doesn't stay locked
         message.style.color = "green";
         message.textContent = "Login successful! Redirecting...";
         setTimeout(() => {
           window.location.href = "products.html";
         }, 1500);
       } else {
-        // FAILED LOGIN - Only increase attempts here
+        // FAILED LOGIN
         attempts++;
         localStorage.setItem("loginAttempts", attempts);
         message.style.color = "red";
@@ -116,7 +116,7 @@
         return;
       }
       localStorage.setItem("password", newPassword);
-      localStorage.setItem("loginAttempts", "0");   // Reset attempts when password is changed
+      localStorage.setItem("loginAttempts", "0");   // Reset attempts
       alert("Password reset successful!");
     }
   </script>
