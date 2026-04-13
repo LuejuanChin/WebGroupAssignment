@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Products</title></head>
+<body>
+<h1>Products</h1>
+<div id="products"></div>
+
+<script>
+// MAJOR UPDATE: dynamic product rendering
+let products = [
+{name:"Phone Mount", price:2500},
+{name:"LED Kit", price:4500}
+];
+
+localStorage.setItem("AllProducts", JSON.stringify(products));
+
+let container = document.getElementById("products");
+products.forEach(p=>{
+let btn = document.createElement("button");
+btn.innerText = "Add "+p.name;
+btn.onclick = ()=>{
+let cart = JSON.parse(localStorage.getItem("cart"))||[];
+cart.push(p);
+localStorage.setItem("cart", JSON.stringify(cart));
+};
+container.appendChild(btn);
+});
+</script>
+</body>
+</html>

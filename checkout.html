@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><title>Checkout</title></head>
+<body>
+<h1>Checkout</h1>
+<form id="checkoutForm">
+<input placeholder="Name" id="name">
+<input placeholder="Address" id="address">
+<button>Confirm</button>
+</form>
+
+<script>
+// MAJOR UPDATE: invoice creation
+document.getElementById("checkoutForm").onsubmit = function(e){
+e.preventDefault();
+let invoices = JSON.parse(localStorage.getItem("AllInvoices"))||[];
+
+invoices.push({name:name.value, date:new Date()});
+localStorage.setItem("AllInvoices", JSON.stringify(invoices));
+
+location.href="invoice.html";
+};
+</script>
+</body>
+</html>

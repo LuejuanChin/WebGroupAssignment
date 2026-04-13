@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Dashboard</h1>
+<button onclick="ShowInvoices()">Show Invoices</button>
+
+<script>
+function ShowInvoices(){
+console.log(JSON.parse(localStorage.getItem("AllInvoices")));
+}
+</script>
+</body>
+</html>

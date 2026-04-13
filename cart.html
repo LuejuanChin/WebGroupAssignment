@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cart</title></head>
+<body>
+<h1>Cart</h1>
+<div id="cart"></div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart"))||[];
+document.getElementById("cart").innerText = JSON.stringify(cart);
+</script>
+</body>
+</html>

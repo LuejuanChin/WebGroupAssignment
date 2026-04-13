@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<body>
+<h1>Login</h1>
+<form id="loginForm">
+<input placeholder="TRN" id="trn">
+<input type="password" placeholder="Password" id="password">
+<button>Login</button>
+</form>
+
+<script>
+// MAJOR UPDATE: login uses TRN
+let attempts = 0;
+document.getElementById("loginForm").onsubmit = function(e){
+e.preventDefault();
+
+let users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+let user = users.find(u => u.trn === trn.value && u.password === password.value);
+
+if(user){
+localStorage.setItem("currentUser", trn.value);
+location.href = "products.html";
+}else{
+attempts++;
+if(attempts>=3){location.href="locked.html";}
+alert("Invalid login");
+}
+};
+</script>
+</body>
+</html>

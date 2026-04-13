@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><title>Register</title></head>
+<body>
+<h1>Register</h1>
+<form id="registerForm">
+<input placeholder="First Name" id="fname" required>
+<input placeholder="Last Name" id="lname" required>
+<input type="date" id="dob" required>
+<input placeholder="Gender" id="gender" required>
+<input placeholder="Phone" id="phone" required>
+<input placeholder="Email" id="email" required>
+<input placeholder="TRN" id="trn" required>
+<input type="password" id="password" required>
+<button type="submit">Register</button>
+</form>
+
+<script>
+// MAJOR UPDATE: full required registration fields
+document.getElementById("registerForm").onsubmit = function(e){
+e.preventDefault();
+let users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+
+let user = {
+fname: fname.value,
+lname: lname.value,
+dob: dob.value,
+gender: gender.value,
+phone: phone.value,
+email: email.value,
+trn: trn.value,
+password: password.value,
+cart: [],
+invoices: []
+};
+
+users.push(user);
+localStorage.setItem("RegistrationData", JSON.stringify(users));
+alert("Registered!");
+};
+</script>
+</body>
+</html>
