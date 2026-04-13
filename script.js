@@ -660,7 +660,6 @@ function displayInvoice() {
     "<p>Taxes: JMD $" + inv.tax.toFixed(2) + "</p>" +
     "<p>Subtotal: JMD $" + inv.subtotal.toFixed(2) + "</p>" +
     "<p>Total Cost: JMD $" + inv.total.toFixed(2) + "</p>" +
-    "<p>Amount Paid: JMD $" + Number(inv.amountPaid).toFixed(2) + "</p>" +
     "<p>Invoice has been sent to the user's email.</p>";
 }
 
