@@ -48,31 +48,21 @@ function saveRegistrationData(users) {
 }
 
 /* MAJOR UPDATE LABEL - aligns with login.html storage */
-function getStoredUsername() {
-  return localStorage.getItem("username") || "";
+function getStoredTRN() {
+  return localStorage.getItem("trn") || "";
 }
 
 function getCurrentUserIndex() {
-  let storedUsername = getStoredUsername().trim().toLowerCase();
+  let storedTRN = getStoredTRN().trim();
   let users = getRegistrationData();
 
-  if (storedUsername === "") {
+  if (storedTRN === "") {
     return -1;
   }
 
   for (let i = 0; i < users.length; i++) {
-    let user = users[i];
-
-    let possibleNames = [
-      user.username,
-      user.name,
-      user.fullName
-    ];
-
-    for (let j = 0; j < possibleNames.length; j++) {
-      if (possibleNames[j] && possibleNames[j].trim().toLowerCase() === storedUsername) {
-        return i;
-      }
+    if (users[i].trn === storedTRN) {
+      return i;
     }
   }
 
@@ -485,14 +475,13 @@ function checkoutValidation() {
     let currentUser = getCurrentUser();
 
     let checkoutData = {
-      customerName: customerName,
-      address: address,
-      amountPaid: amountPaid,
-      cart: cart,
-      total: totals.total,
-      username: getStoredUsername(),
-      trn: currentUser && currentUser.trn ? currentUser.trn : "N/A"
-    };
+  customerName: customerName,
+  address: address,
+  amountPaid: amountPaid,
+  cart: cart,
+  total: totals.total,
+  trn: currentUser && currentUser.trn ? currentUser.trn : getStoredTRN()
+};
 
     localStorage.setItem("latestCheckout", JSON.stringify(checkoutData));
 
