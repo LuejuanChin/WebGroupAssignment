@@ -682,12 +682,13 @@ function displayInvoice() {
    Handles user frequency charts and invoice lookups
    ============================================================ */
 
-/* PERSON 4 - DASHBOARD: Show user frequency by gender and age group */
+/* PERSON 4 - DASHBOARD: Show user frequency based on Gender and Age Group */
 function showUserFrequency() {
   let container = document.getElementById("frequencyDisplay");
   if (!container) return;
 
   let users = getRegistrationData();
+
   if (users.length === 0) {
     container.innerHTML = "<p>No user data found.</p>";
     return;
@@ -696,6 +697,7 @@ function showUserFrequency() {
   let male = 0;
   let female = 0;
   let other = 0;
+
   let age18to25 = 0;
   let age26to35 = 0;
   let age36to50 = 0;
@@ -703,8 +705,11 @@ function showUserFrequency() {
 
   for (let i = 0; i < users.length; i++) {
     let user = users[i];
-    let gender = (user.gender || "Other").toLowerCase();
-    let age = user.age ? parseInt(user.age) : calculateAge(user.dob);
+
+    let gender = "";
+    if (user.gender) {
+      gender = user.gender.trim().toLowerCase();
+    }
 
     if (gender === "male") {
       male = male + 1;
@@ -712,6 +717,14 @@ function showUserFrequency() {
       female = female + 1;
     } else {
       other = other + 1;
+    }
+
+    let age = 0;
+
+    if (user.age) {
+      age = parseInt(user.age);
+    } else if (user.dob) {
+      age = calculateAge(user.dob);
     }
 
     if (age >= 18 && age <= 25) {
@@ -725,57 +738,59 @@ function showUserFrequency() {
     }
   }
 
-  console.log("--- User Frequency ---");
-  console.log("Male: " + male);
-  console.log("Female: " + female);
-  console.log("Other: " + other);
-  console.log("Age 18-25: " + age18to25);
-  console.log("Age 26-35: " + age26to35);
-  console.log("Age 36-50: " + age36to50);
-  console.log("Age 50+: " + age50plus);
-
   let scale = 20;
 
   container.innerHTML =
     "<h3>Gender Frequency</h3>" +
-    "<p>Male (" + male + ")" +
-    "<div style='background-color: #4a90d9; height: 20px; width: " + (male * scale) + "px;'></div></p>" +
-    "<p>Female (" + female + ")" +
-    "<div style='background-color: #e87ba0; height: 20px; width: " + (female * scale) + "px;'></div></p>" +
-    "<p>Other (" + other + ")" +
-    "<div style='background-color: #7bc47b; height: 20px; width: " + (other * scale) + "px;'></div></p>" +
+    "<p>Male (" + male + ")</p>" +
+    "<div style='background-color:#4a90d9; height:20px; width:" + (male * scale) + "px; margin-bottom:10px;'></div>" +
+    "<p>Female (" + female + ")</p>" +
+    "<div style='background-color:#e87ba0; height:20px; width:" + (female * scale) + "px; margin-bottom:10px;'></div>" +
+    "<p>Other (" + other + ")</p>" +
+    "<div style='background-color:#7bc47b; height:20px; width:" + (other * scale) + "px; margin-bottom:20px;'></div>" +
     "<h3>Age Group Frequency</h3>" +
-    "<p>18-25 (" + age18to25 + ")" +
-    "<div style='background-color: #f0a500; height: 20px; width: " + (age18to25 * scale) + "px;'></div></p>" +
-    "<p>26-35 (" + age26to35 + ")" +
-    "<div style='background-color: #e05c5c; height: 20px; width: " + (age26to35 * scale) + "px;'></div></p>" +
-    "<p>36-50 (" + age36to50 + ")" +
-    "<div style='background-color: #7b5ea7; height: 20px; width: " + (age36to50 * scale) + "px;'></div></p>" +
-    "<p>50+ (" + age50plus + ")" +
-    "<div style='background-color: #5eaaa8; height: 20px; width: " + (age50plus * scale) + "px;'></div></p>";
+    "<p>18-25 (" + age18to25 + ")</p>" +
+    "<div style='background-color:#f0a500; height:20px; width:" + (age18to25 * scale) + "px; margin-bottom:10px;'></div>" +
+    "<p>26-35 (" + age26to35 + ")</p>" +
+    "<div style='background-color:#e05c5c; height:20px; width:" + (age26to35 * scale) + "px; margin-bottom:10px;'></div>" +
+    "<p>36-50 (" + age36to50 + ")</p>" +
+    "<div style='background-color:#7b5ea7; height:20px; width:" + (age36to50 * scale) + "px; margin-bottom:10px;'></div>" +
+    "<p>50+ (" + age50plus + ")</p>" +
+    "<div style='background-color:#5eaaa8; height:20px; width:" + (age50plus * scale) + "px; margin-bottom:10px;'></div>";
+
+  console.log("Gender Frequency:");
+  console.log("Male: " + male);
+  console.log("Female: " + female);
+  console.log("Other: " + other);
+
+  console.log("Age Group Frequency:");
+  console.log("18-25: " + age18to25);
+  console.log("26-35: " + age26to35);
+  console.log("36-50: " + age36to50);
+  console.log("50+: " + age50plus);
 }
 
-/* PERSON 4 - DASHBOARD: Show all invoices, with optional search by TRN */
+/* PERSON 4 - DASHBOARD: ShowInvoices() - displays all invoices and allow search by trn using console.log() */
 function showInvoices() {
   let container = document.getElementById("invoiceList");
   if (!container) return;
 
   let allInvoices = getAllInvoices();
-
   let searchInput = document.getElementById("searchTRN");
   let searchTRN = "";
+
   if (searchInput) {
     searchTRN = searchInput.value.trim();
   }
 
   if (allInvoices.length === 0) {
     container.innerHTML = "<p>No invoices found.</p>";
-    console.log("No invoices in storage.");
+    console.log("No invoices found.");
     return;
   }
 
   let output = "";
-  let found = 0;
+  let foundMatch = false;
 
   for (let i = 0; i < allInvoices.length; i++) {
     let inv = allInvoices[i];
@@ -784,7 +799,7 @@ function showInvoices() {
       continue;
     }
 
-    found = found + 1;
+    foundMatch = true;
 
     output +=
       "<div class='invoice-card'>" +
@@ -792,22 +807,27 @@ function showInvoices() {
       "<p><strong>Date:</strong> " + inv.date + "</p>" +
       "<p><strong>Customer:</strong> " + inv.customerName + "</p>" +
       "<p><strong>TRN:</strong> " + inv.trn + "</p>" +
-      "<p><strong>Total:</strong> JMD $" + inv.total.toFixed(2) + "</p>" +
+      "<p><strong>Total:</strong> JMD $" + Number(inv.total).toFixed(2) + "</p>" +
       "<hr>" +
       "</div>";
 
-    console.log("Invoice " + inv.invoiceNumber + " | TRN: " + inv.trn + " | Total: JMD $" + inv.total.toFixed(2));
+    console.log("Invoice Number: " + inv.invoiceNumber);
+    console.log("Date: " + inv.date);
+    console.log("Customer: " + inv.customerName);
+    console.log("TRN: " + inv.trn);
+    console.log("Total: JMD $" + Number(inv.total).toFixed(2));
+    console.log("--------------------------");
   }
 
-  if (found === 0) {
+  if (foundMatch === false) {
     container.innerHTML = "<p>No invoices found for TRN: " + searchTRN + "</p>";
-    console.log("No invoices matched TRN: " + searchTRN);
+    console.log("No invoices found for TRN: " + searchTRN);
   } else {
     container.innerHTML = output;
   }
 }
 
-/* PERSON 4 - DASHBOARD: Get and display invoices for a specific user by TRN from RegistrationData */
+/* PERSON 4 - DASHBOARD: GetUserInvoices() – displays all the invoices for a user based on trn stored in RegistrationData */
 function getUserInvoices() {
   let container = document.getElementById("userInvoiceDisplay");
   if (!container) return;
@@ -828,22 +848,24 @@ function getUserInvoices() {
   for (let i = 0; i < users.length; i++) {
     if (users[i].trn === trn) {
       foundUser = users[i];
+      break;
     }
   }
 
-  if (!foundUser) {
+  if (foundUser === null) {
     container.innerHTML = "<p>No user found with TRN: " + trn + "</p>";
-    console.log("No user matched TRN: " + trn);
+    console.log("No user found with TRN: " + trn);
     return;
   }
 
   if (!foundUser.invoices || foundUser.invoices.length === 0) {
-    container.innerHTML = "<p>" + getUserDisplayName(foundUser) + " has no invoices.</p>";
-    console.log(getUserDisplayName(foundUser) + " has no invoices.");
+    container.innerHTML = "<p>This user has no invoices.</p>";
+    console.log("User has no invoices for TRN: " + trn);
     return;
   }
 
-  let output = "<h3>Invoices for: " + getUserDisplayName(foundUser) + " (TRN: " + trn + ")</h3>";
+  let userName = getUserDisplayName(foundUser);
+  let output = "<h3>Invoices for " + userName + "</h3>";
 
   for (let i = 0; i < foundUser.invoices.length; i++) {
     let inv = foundUser.invoices[i];
@@ -852,11 +874,16 @@ function getUserInvoices() {
       "<div class='invoice-card'>" +
       "<p><strong>Invoice #:</strong> " + inv.invoiceNumber + "</p>" +
       "<p><strong>Date:</strong> " + inv.date + "</p>" +
-      "<p><strong>Total:</strong> JMD $" + inv.total.toFixed(2) + "</p>" +
+      "<p><strong>TRN:</strong> " + inv.trn + "</p>" +
+      "<p><strong>Total:</strong> JMD $" + Number(inv.total).toFixed(2) + "</p>" +
       "<hr>" +
       "</div>";
 
-    console.log("User Invoice: " + inv.invoiceNumber + " | Total: JMD $" + inv.total.toFixed(2));
+    console.log("User Invoice Number: " + inv.invoiceNumber);
+    console.log("Date: " + inv.date);
+    console.log("TRN: " + inv.trn);
+    console.log("Total: JMD $" + Number(inv.total).toFixed(2));
+    console.log("--------------------------");
   }
 
   container.innerHTML = output;
