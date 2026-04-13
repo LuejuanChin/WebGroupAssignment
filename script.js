@@ -1,16 +1,107 @@
 /* DriveStyle Auto Accessories
    IA#2 JavaScript*/
 
-const products = [
-  { name: "Car Phone Mount", price: 2500 },
-  { name: "Interior LED Light Kit", price: 4500 },
-  { name: "Premium Seat Covers", price: 6800 },
-  { name: "Portable Car Vacuum", price: 5200 },
-  { name: "Luxury Air Freshener", price: 1200 },
-  { name: "Dash Cam", price: 9500 }
+/* ========================
+   PRODUCTS DATA
+   ======================== */
+let products = [
+  {
+    name: "Car Phone Mount",
+    price: 2500,
+    description: "Strong and adjustable dashboard mount for safe driving.",
+    image: "phone-mount.jpeg"
+  },
+  {
+    name: "Interior LED Light Kit",
+    price: 4500,
+    description: "Bright multi-color LED lighting for a modern cabin look.",
+    image: "led-lights.jpeg"
+  },
+  {
+    name: "Premium Seat Covers",
+    price: 6800,
+    description: "Comfortable and stylish seat covers to protect your interior.",
+    image: "seat-cover.jpeg"
+  },
+  {
+    name: "Portable Car Vacuum",
+    price: 5200,
+    description: "Compact vacuum cleaner for quick and easy interior cleaning.",
+    image: "car-vacuum.jpeg"
+  },
+  {
+    name: "Luxury Air Freshener",
+    price: 1200,
+    description: "Long-lasting fragrance to keep your car smelling fresh.",
+    image: "air-freshener.jpeg"
+  },
+  {
+    name: "Dash Cam",
+    price: 9500,
+    description: "Record your trips with clear video for safety and security.",
+    image: "dash-cam.jpeg"
+  }
 ];
 
-/* CART FUNCTIONS*/
+/* ========================
+   PRODUCT STORAGE FUNCTIONS
+   ======================== */
+
+// Save products to localStorage
+function saveProducts() {
+  localStorage.setItem("AllProducts", JSON.stringify(products));
+}
+
+// Load products from localStorage (or use default if none saved)
+function loadProducts() {
+  let saved = localStorage.getItem("AllProducts");
+  if (saved) {
+    products = JSON.parse(saved);
+  } else {
+    saveProducts();
+  }
+}
+
+/* ========================
+   PRODUCT DISPLAY FUNCTION
+   ======================== */
+
+// Show all products as cards on the page
+function displayProducts() {
+  let container = document.getElementById("productList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  for (let i = 0; i < products.length; i++) {
+    let p = products[i];
+
+    let card = document.createElement("div");
+    card.className = "product-card";
+
+    card.innerHTML =
+      "<img src='" + p.image + "' alt='" + p.name + "'>" +
+      "<h2>" + p.name + "</h2>" +
+      "<p>" + p.description + "</p>" +
+      "<p class='price'>$" + p.price.toFixed(2) + "</p>" +
+      "<button class='add-cart' data-index='" + i + "'>Add to Cart</button>";
+
+    container.appendChild(card);
+  }
+
+  // Add click listeners to all "Add to Cart" buttons
+  let buttons = document.querySelectorAll(".add-cart");
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener("click", function () {
+      let index = parseInt(this.getAttribute("data-index"));
+      addToCart(index);
+    });
+  }
+}
+
+/* ========================
+   CART FUNCTIONS
+   ======================== */
 
 function getCart() {
   let cart = localStorage.getItem("cart");
@@ -26,24 +117,15 @@ function saveCart(cart) {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-function addToCart(productName) {
+// Add selected product to cart
+function addToCart(index) {
+  let product = products[index];
   let cart = getCart();
-  let product = null;
-
-  for (let i = 0; i < products.length; i++) {
-    if (products[i].name === productName) {
-      product = products[i];
-    }
-  }
-
-  if (!product) {
-    return;
-  }
 
   let existingItem = null;
 
   for (let i = 0; i < cart.length; i++) {
-    if (cart[i].name === productName) {
+    if (cart[i].name === product.name) {
       existingItem = cart[i];
     }
   }
@@ -63,7 +145,7 @@ function addToCart(productName) {
   }
 
   saveCart(cart);
-  alert(productName + " has been added to your cart!");
+  alert(product.name + " added to cart!");
 
   if (document.getElementById("cartItems")) {
     displayCart();
@@ -98,7 +180,9 @@ function updateQuantity(index, newQty) {
   displayOrderSummary();
 }
 
-/* PRODUCT BUTTON EVENTS*/
+/* ========================
+   PRODUCT BUTTON EVENTS
+   ======================== */
 
 function setupAddToCart() {
   let buttons = document.querySelectorAll(".add-cart");
@@ -106,12 +190,15 @@ function setupAddToCart() {
   for (let i = 0; i < buttons.length; i++) {
     let index = i;
     buttons[i].addEventListener("click", function () {
-      addToCart(products[index].name);
+      addToCart(index);
     });
   }
 }
 
-/*CART DISPLAY*/
+/* ========================
+   CART DISPLAY
+   ======================== */
+
 function displayCart() {
   let cartTable = document.getElementById("cartItems");
   let summary = document.querySelector(".cart-summary");
@@ -176,7 +263,10 @@ function displayCart() {
   }
 }
 
-/* CHECKOUT ORDER SUMMARY*/
+/* ========================
+   CHECKOUT ORDER SUMMARY
+   ======================== */
+
 function displayOrderSummary() {
   let summaryBox = document.getElementById("orderSummary");
 
@@ -227,13 +317,19 @@ function closeCart() {
   }
 }
 
-/* LOGIN FORM VALIDATION*/
+/* ========================
+   LOGIN FORM VALIDATION
+   ======================== */
 function loginValidation() { }
 
-/* REGISTER FORM VALIDATION*/
+/* ========================
+   REGISTER FORM VALIDATION
+   ======================== */
 function registerValidation() { }
 
-/* CHECKOUT FORM */
+/* ========================
+   CHECKOUT FORM
+   ======================== */
 function checkoutValidation() {
 
   let form = document.getElementById("checkoutForm");
@@ -278,7 +374,9 @@ function checkoutValidation() {
   });
 }
 
-/* BUTTONS*/
+/* ========================
+   BUTTONS
+   ======================== */
 function setupButtons() {
   let buttons = document.querySelectorAll("button");
 
@@ -301,6 +399,16 @@ function setupButtons() {
       });
     }
   }
+}
+
+/* ========================
+   PAGE INITIALIZATION
+   ======================== */
+
+// Run when products.html loads
+if (document.getElementById("productList")) {
+  loadProducts();
+  displayProducts();
 }
 
 /* FUNCTIONS */
